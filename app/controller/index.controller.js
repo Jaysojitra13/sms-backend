@@ -7,13 +7,21 @@ exports.create = (req, res) => {
             message: "user content can not be empty"
         });
     }
-
+    
     // Create a user
     const user = new SignUp({
-        title: req.body.title, //|| "Untitled user", 
-        content: req.body.content
-    });
-
+        firstname:          req.body.firstname,  
+        lastname:           req.body.lastname,    
+        email:              req.body.email,
+        password:           req.body.password,    
+        confirmpassword:    req.body.confirmpassword, 
+        birthdate:          req.body.birthdate,   
+        profilePhoto:       req.body.profilePhoto,
+        flateBlock:         req.body.flateBlock,
+        flateNumber:        req.body.flateNumber,
+        mobileNumber:       req.body.mobileNumber
+    });  
+    
     // Save user in the database
     user.save()
     .then(data => {
@@ -27,7 +35,7 @@ exports.create = (req, res) => {
 
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
-    SignUp.find()
+    SignUp.find({}, {flateBlock: 1, flateNumber: 1, firstname: 1, lastname: 1})
     .then(users => {
         res.send(users);
     }).catch(err => {
@@ -61,17 +69,25 @@ exports.findOne = (req, res) => {
 
 // Update a user identified by the userId in the request
 exports.update = (req, res) => {
-     // Validate Request
-     if(!req.body.content) {
+    // Validate Request
+    if(!req.body) {
         return res.status(400).send({
             message: "user content can not be empty"
         });
     }
-
+    
     // Find user and update it with the request body
     SignUp.findByIdAndUpdate(req.params.userId, {
-        title: req.body.title, //|| "Untitled user",
-        content: req.body.content
+        firstname:          req.body.firstname,  
+        lastname:           req.body.lastname,    
+        email:              req.body.email,
+        password:           req.body.password,    
+        confirmpassword:    req.body.confirmpassword, 
+        birthdate:          req.body.birthdate,   
+        profilePhoto:       req.body.profilePhoto,
+        flateBlock:         req.body.flateBlock,
+        flateNumber:        req.body.flateNumber,
+        mobileNumber:       req.body.mobileNumber
     }, {new: true})
     .then(user => {
         if(!user) {
