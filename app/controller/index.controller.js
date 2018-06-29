@@ -2,9 +2,10 @@ const SignUp = require('../models/signup.model.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../../config/database.config.js')
-
+const Maintenance = require('../models/maintenance.model.js');
 // Create and Save a new user
 exports.create = (req, res) => {
+    console.log(req.userId)
     if(!req.body) {
         return res.status(400).send({
             message: "user content can not be empty"
@@ -35,7 +36,8 @@ exports.create = (req, res) => {
                         profilePhoto:       req.file.path,
                         flateBlock:         req.body.flateBlock,
                         flateNumber:        req.body.flateNumber,
-                        mobileNumber:       req.body.mobileNumber
+                        mobileNumber:       req.body.mobileNumber,
+                        isRepresentative:   true
                     });
                     // Save user in the database
                     user.save()
@@ -52,6 +54,25 @@ exports.create = (req, res) => {
                 }
                 
             })
+            
+                // //create Maintenance of particular user
+                // const newMaintenance = new Maintenance({
+                //     datePaid: '',
+                //     currentUser: {
+                //         id: req.userId,
+                //         firstname: req.body.firstname,
+                //         lastname: req.body.lastname
+                //     },    
+                //     months: []
+                // });
+                // newMaintenance.save()
+                // .then(maintenance => {
+                //     res.send(maintenance)
+                // }).catch(err => {
+                //     res.status(500).send({
+                //         message: err.message || "maintenanace object is not created"
+                //     })
+                // });
             
         }
     })
@@ -163,16 +184,17 @@ exports.delete = (req, res) => {
 exports.login = (req, res) => {
     SignUp.findOne({email: req.body.email},)
     .then(user => {
+        console.log(req.userId);
         // if (err) return res.status(500).send({message: 'Error on the server.'});
         if (!user) return res.status(404).send({message: 'No user found.'});
-
+        
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
-
+        
         var token = jwt.sign({ id: user._id }, config.secret, {
             expiresIn: 86400 // expires in 24 hours
-          });
-
+        });
+        
         res.status(200).send({ auth: true, token: token });
     })
     .catch(err => {

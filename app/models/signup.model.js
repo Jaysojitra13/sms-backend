@@ -10,7 +10,8 @@ var signUpSchema = new mongoose.Schema({
     profilePhoto:        {type: String, required: true},
     flateBlock:          {type: String, required: true},
     flateNumber:        {type: String, required: true},
-    mobileNumber:       {type: Number, required: true}
+    mobileNumber:       {type: Number, required: true},
+    isRepresentative:   {type: Boolean, default: false}
     
 });
 
