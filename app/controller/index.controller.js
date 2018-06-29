@@ -1,4 +1,7 @@
 const SignUp = require('../models/signup.model.js');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const config = require('../../config/database.config.js')
 
 // Create and Save a new user
 exports.create = (req, res) => {
@@ -7,30 +10,56 @@ exports.create = (req, res) => {
             message: "user content can not be empty"
         });
     }
+    //Check Wheather user is created or not
+    SignUp.find({email: req.body.email})
+    .then(user => {
+        if(user.length >= 1) {
+            return res.status(409).json({
+                message: "User already exist"
+            })
+        } else {
+            // Create a user
+            bcrypt.hash(req.body.password, 10, (err, hash) => {
+                if(err) 
+                {return res.status(500).json({
+                    error: err
+                })}
+                else{
+                    const user = new SignUp({
+                        firstname:          req.body.firstname,  
+                        lastname:           req.body.lastname,    
+                        email:              req.body.email,
+                        password:           hash ,    
+                        confirmpassword:    req.body.confirmpassword, 
+                        birthdate:          req.body.birthdate,   
+                        profilePhoto:       req.file.path,
+                        flateBlock:         req.body.flateBlock,
+                        flateNumber:        req.body.flateNumber,
+                        mobileNumber:       req.body.mobileNumber
+                    });
+                    // Save user in the database
+                    user.save()
+                    .then(user => {
+                        var token = jwt.sign({ id: user._id }, config.secret, {
+                            expiresIn: 86400 // expires in 24 hours
+                        });
+                        res.send({user: user, token: token});
+                    }).catch(err => {
+                        res.status(500).send({
+                            message: err.message || "Some error occurred while creating the user."
+                        });
+                    });
+                }
+                
+            })
+            
+        }
+    })
     
-    // Create a user
-    const user = new SignUp({
-        firstname:          req.body.firstname,  
-        lastname:           req.body.lastname,    
-        email:              req.body.email,
-        password:           req.body.password,    
-        confirmpassword:    req.body.confirmpassword, 
-        birthdate:          req.body.birthdate,   
-        profilePhoto:       req.body.profilePhoto,
-        flateBlock:         req.body.flateBlock,
-        flateNumber:        req.body.flateNumber,
-        mobileNumber:       req.body.mobileNumber
-    });  
     
-    // Save user in the database
-    user.save()
-    .then(data => {
-        res.send(data);
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating the user."
-        });
-    });
+    
+    
+    
 };
 
 // Retrieve and return all users from the database.
@@ -129,3 +158,55 @@ exports.delete = (req, res) => {
         });
     });
 };
+
+//Login with token
+exports.login = (req, res) => {
+    SignUp.findOne({email: req.body.email},)
+    .then(user => {
+        // if (err) return res.status(500).send({message: 'Error on the server.'});
+        if (!user) return res.status(404).send({message: 'No user found.'});
+
+        var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+        if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
+
+        var token = jwt.sign({ id: user._id }, config.secret, {
+            expiresIn: 86400 // expires in 24 hours
+          });
+
+        res.status(200).send({ auth: true, token: token });
+    })
+    .catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: err
+            });                
+        }
+        return res.status(500).send({
+            message: err
+        });
+    });
+};
+
+//Verify token
+exports.checkToken = (req, res) => {
+    var token = req.headers['x-access-token'];
+    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+    
+    jwt.verify(token, config.secret, function(err, decoded) {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        
+        SignUp.findById(decoded.id, {password: 0} ,function (err, user) {
+            if (err) return res.status(500).send("There was a problem finding the user.");
+            if (!user) return res.status(404).send("No user found.");
+            
+            res.status(200).send(user);
+        });
+        
+    });
+}
+
+
+//logout
+exports.logout = (req, res) => {
+    res.status(200).send({ auth: false, token: null });
+}
