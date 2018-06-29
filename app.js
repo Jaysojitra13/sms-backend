@@ -30,6 +30,6 @@ mongoose.connect(dbConfig.url)
 require('./app/routes/index.routes.js')(app);
 
 // listen for requests
-app.listen(1342, () => {
+app.listen(7080, () => {
     console.log("Server is listening..");
 });

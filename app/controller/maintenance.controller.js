@@ -3,49 +3,32 @@ const Maintenance = require('../models/maintenance.model');
 
 
 exports.createMaintenance = (req, res) => {
-    console.log(req.params.currentUserId)
     if(!req.body) {
         return res.status(400).send({
             message: "user content can not be empty"
         });
     }
 
-    // var currentUser = {
-    //     id: req.body.id,
-    //     firstname: req.body.firstname,
-    //     lastname: req.body.lastname
-    // }
-    
-    // var month = {
-    //     monthName: req.body.month,
-    //     isPaid: req.body.isPaid
-    // }
-    
-    // var months = months.push(month)
 
-    // var newMaintenance = {
-    //     datePaid: req.body.date,
-    //     currentUser: currentUser,
-    //     months: months
-    // }
-    
-    // Maintenance.create(newMaintenance, (err, newMaintenance) => {
-    //     if(err) console.log(err);
-    //     res.send(newMaintenance);
-    
-    // })
 
     Maintenance.find({"currentUser.id": req.params.currentUserId})
     .then(maintenance => {
+        // console.log(maintenance[0].months)
         if(maintenance.length >= 1) {
-            res.send(maintenance+ "hello")
+            // Maintenance.update({"currentUser.id": req.params.currentUserId})
+            // .then(result => {
+                
+            // })
+            // .catch(err => {
+            //     console.log(err)
+            // })
+            // const month = req.body.months
+            // $push: {months: req.body.month}
+            res.send(maintenance[0].months)
         }else {
             const newMaintenance = new Maintenance({
-                datePaid: req.body.date,
                 currentUser: {
                     id: req.params.currentUserId,
-                    firstname: req.body.firstname,
-                    lastname: req.body.lastname 
                 },
                 months: req.body.months
             });
@@ -55,16 +38,16 @@ exports.createMaintenance = (req, res) => {
             })
             .catch(err => {
                 res.status(500).send({
-                    message: err.message || "Maintenance is not saved"
+                    message: err.message + "a"|| "Maintenance is not saved"
                 })
             })
         }
     })
-    .catch(err => {
-        if(err) res.status(404).send({
-            message: err.message || "Maintenance is not found"
-        })
-    })
+    // .catch(err => {
+    //     if(err) res.status(404).send({
+    //         message: err.message +  "b"|| "Maintenance is not found"
+    //     })
+    // })
 
         
     // });
