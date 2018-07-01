@@ -18,10 +18,10 @@ module.exports = (app) => {
     
     //Users Routes
     // Retrieve users Notes
-    app.get('/users', users.findAll);
+    app.get('/users', verifyToken, users.findAll);
 
     // Retrieve a single Note with noteId
-    app.get('/users/:userId', users.findOne);
+    app.get('/users/:user Id', users.findOne);
 
     // Update a Note with noteId
     app.put('/users/:userId', users.update);
@@ -32,10 +32,12 @@ module.exports = (app) => {
 
     //Maintenance Routes
      // check wheather maintenance is paid or not
-     app.put('/users/maintenance/:currentUserId', verifyToken, maintenance.createMaintenance);
+     app.post('/createmaintenance/:currentUserId', verifyToken, maintenance.createMaintenance);
+
+    //get maintenance of given user
+    app.get('/maintenance/:currentUserId',verifyToken, maintenance.getMaintenance);
 
     
-
      
     //Auth Routes 
 

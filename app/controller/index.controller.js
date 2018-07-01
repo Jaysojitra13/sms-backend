@@ -27,17 +27,17 @@ exports.create = (req, res) => {
                 })}
                 else{
                     const user = new SignUp({
-                        firstname:          req.body.firstname,  
-                        lastname:           req.body.lastname,    
+                        firstname:          req.body.firstname,
+                        lastname:           req.body.lastname, 
                         email:              req.body.email,
-                        password:           hash ,    
-                        confirmpassword:    req.body.confirmpassword, 
-                        birthdate:          req.body.birthdate,   
-                        profilePhoto:       req.file.path,
+                        password:           hash ,
+                        confirmpassword:    req.body.confirmpassword,
+                        birthdate:          req.body.birthdate,//change this to req.file.path
+                        profilePhoto:       req.body.profilePhoto,
                         flateBlock:         req.body.flateBlock,
                         flateNumber:        req.body.flateNumber,
                         mobileNumber:       req.body.mobileNumber,
-                        isRepresentative:   true
+                        
                     });
                     // Save user in the database
                     user.save()
@@ -54,26 +54,6 @@ exports.create = (req, res) => {
                 }
                 
             })
-            
-                // //create Maintenance of particular user
-                // const newMaintenance = new Maintenance({
-                //     datePaid: '',
-                //     currentUser: {
-                //         id: req.userId,
-                //         firstname: req.body.firstname,
-                //         lastname: req.body.lastname
-                //     },    
-                //     months: []
-                // });
-                // newMaintenance.save()
-                // .then(maintenance => {
-                //     res.send(maintenance)
-                // }).catch(err => {
-                //     res.status(500).send({
-                //         message: err.message || "maintenanace object is not created"
-                //     })
-                // });
-            
         }
     })
     
@@ -85,7 +65,7 @@ exports.create = (req, res) => {
 
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
-    SignUp.find({}, {flateBlock: 1, flateNumber: 1, firstname: 1, lastname: 1})
+    SignUp.find({$or: [{flateBlock: "A"}, {flateBlock: "a"}]}, {flateBlock: 1, flateNumber: 1, firstname: 1, lastname: 1})
     .then(users => {
         res.send(users);
     }).catch(err => {
@@ -132,7 +112,6 @@ exports.update = (req, res) => {
         lastname:           req.body.lastname,    
         email:              req.body.email,
         password:           req.body.password,    
-        confirmpassword:    req.body.confirmpassword, 
         birthdate:          req.body.birthdate,   
         profilePhoto:       req.body.profilePhoto,
         flateBlock:         req.body.flateBlock,

@@ -8,7 +8,8 @@ var maintenanceSchema = new mongoose.Schema({
             ref: "SignUp"
         },
     },
-    months: [{monthName: String, isPaid: Boolean}]
+    month: {type: String},
+    isPaid: {type: Boolean, default: false}
 });
 
 module.exports = mongoose.model("Maintenance", maintenanceSchema);

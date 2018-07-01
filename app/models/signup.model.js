@@ -5,7 +5,6 @@ var signUpSchema = new mongoose.Schema({
     lastname:           {type: String, required: true},
     email:              {type: String, required: true},
     password:           {type: String, required: true},
-    confirmpassword:     {type: String, required: true},
     birthdate:           {type: Date, required: true, default: Date.now()},
     profilePhoto:        {type: String, required: true},
     flateBlock:          {type: String, required: true},
