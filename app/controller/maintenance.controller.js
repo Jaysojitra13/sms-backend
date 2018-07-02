@@ -3,16 +3,11 @@ const Maintenance = require('../models/maintenance.model');
 
 //Create Maintenance object
 exports.createMaintenance = (req, res) => {
-    const arrOfMonths = req.body;
-    
     if(!req.body) {
         return res.status(400).send({
             message: "user content can not be empty"
         });
     }
-  
-
-    
     Maintenance.findOne({"currentUser.id": req.params.currentUserId, month: req.body.month}, (err, maintenance) => {
         if (maintenance) {
             let promise = new Promise((resolve, reject) => {
@@ -25,7 +20,6 @@ exports.createMaintenance = (req, res) => {
                 })
             )
         } else {
-            
             const newMaintenance = new Maintenance({
                 currentUser: {
                     id: req.params.currentUserId,
@@ -50,7 +44,7 @@ exports.createMaintenance = (req, res) => {
     
 }
 
-//Get all maintenance of given user
+//Get array of month with pending maintenance
 exports.getMaintenance = (req, res) => {
     if(!req.body) {
         return res.status(400).send({
@@ -70,7 +64,6 @@ exports.getMaintenance = (req, res) => {
                 }
             })
         })
-        
     }
     res.send(pendingMaintenance)
        
