@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-
 var maintenanceSchema = new mongoose.Schema({
    
     currentUser: {

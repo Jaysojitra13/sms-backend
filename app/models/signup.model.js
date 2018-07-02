@@ -1,11 +1,13 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+
 
 var signUpSchema = new mongoose.Schema({
-    firstname:          {type: String, required: true},
-    lastname:           {type: String, required: true},
+    firstName:          {type: String, required: true},
+    lastName:           {type: String, required: true},
     email:              {type: String, required: true},
     password:           {type: String, required: true},
-    birthdate:           {type: Date, required: true, default: Date.now()},
+    birthdate:           {type: Date, required: true},
+    flatePurchaseDate:    {type: Date, required: true},
     profilePhoto:        {type: String, required: true},
     flateBlock:          {type: String, required: true},
     flateNumber:        {type: String, required: true},

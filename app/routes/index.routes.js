@@ -18,7 +18,7 @@ module.exports = (app) => {
     
     //Users Routes
     // Retrieve users Notes
-    app.get('/users', verifyToken, users.findAll);
+    app.get('/users/:loginUserId', verifyToken, users.findAll);
 
     // Retrieve a single Note with noteId
     app.get('/users/:user Id', users.findOne);
@@ -35,7 +35,7 @@ module.exports = (app) => {
      app.post('/createmaintenance/:currentUserId', verifyToken, maintenance.createMaintenance);
 
     //get maintenance of given user
-    app.get('/maintenance/:currentUserId',verifyToken, maintenance.getMaintenance);
+    app.get('/getmaintenance/:currentUserId',verifyToken, maintenance.getMaintenance);
 
     
      

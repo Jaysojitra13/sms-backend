@@ -5,7 +5,6 @@ const config = require('../../config/database.config.js')
 const Maintenance = require('../models/maintenance.model.js');
 // Create and Save a new user
 exports.create = (req, res) => {    
-    console.log(req.userId)
     if(!req.body) {
         return res.status(400).send({
             message: "user content can not be empty"
@@ -27,13 +26,14 @@ exports.create = (req, res) => {
                 })}
                 else{
                     const user = new SignUp({
-                        firstname:          req.body.firstname,
-                        lastname:           req.body.lastname, 
+                        firstName:          req.body.firstName,
+                        lastName:           req.body.lastName, 
                         email:              req.body.email,
                         password:           hash ,
                         confirmpassword:    req.body.confirmpassword,
-                        birthdate:          req.body.birthdate,//change this to req.file.path
-                        profilePhoto:       req.body.profilePhoto,
+                        birthdate:          req.body.birthdate,
+                        flatePurchaseDate:          req.body.flatePurchaseDate,
+                        profilePhoto:       req.file.path,
                         flateBlock:         req.body.flateBlock,
                         flateNumber:        req.body.flateNumber,
                         mobileNumber:       req.body.mobileNumber,
@@ -65,14 +65,25 @@ exports.create = (req, res) => {
 
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
-    SignUp.find({$or: [{flateBlock: "A"}, {flateBlock: "a"}]}, {flateBlock: 1, flateNumber: 1, firstname: 1, lastname: 1})
-    .then(users => {
-        res.send(users);
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while retrieving users."
-        });
-    });
+    console.log(req.params.loginUserId);
+    
+    SignUp.findOne({"_id": req.params.loginUserId}, (err, user) => {
+            let promise = new Promise((resolve, reject) => {
+                console.log(user.flateBlock)
+                resolve(user.flateBlock)
+            })
+            
+        
+            SignUp.find({$or: [{flateBlock: user.flateBlock}]}, {flateBlock: 1, flateNumber: 1, firstname: 1, lastname: 1})
+            .then(users => {
+                res.send(users);
+            }).catch(err => {
+                res.status(500).send({
+                    message: err.message || "Some error occurred while retrieving users."
+                });
+            });
+        })
+    
 };
 
 // Find a single user with a userId
@@ -108,11 +119,12 @@ exports.update = (req, res) => {
     
     // Find user and update it with the request body
     SignUp.findByIdAndUpdate(req.params.userId, {
-        firstname:          req.body.firstname,  
-        lastname:           req.body.lastname,    
+        firstName:          req.body.firstname,  
+        lastName:           req.body.lastname,    
         email:              req.body.email,
         password:           req.body.password,    
         birthdate:          req.body.birthdate,   
+        flatePurchaseDate:          req.body.flatePurchaseDate,
         profilePhoto:       req.body.profilePhoto,
         flateBlock:         req.body.flateBlock,
         flateNumber:        req.body.flateNumber,
@@ -163,14 +175,13 @@ exports.delete = (req, res) => {
 exports.login = (req, res) => {
     SignUp.findOne({email: req.body.email},)
     .then(user => {
-        console.log(req.userId);
         // if (err) return res.status(500).send({message: 'Error on the server.'});
         if (!user) return res.status(404).send({message: 'No user found.'});
         
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
         
-        var token = jwt.sign({ id: user._id }, config.secret, {
+        var token = jwt.sign({flateBlock: user.flateBlock, id: user._id }, config.secret, {
             expiresIn: 86400 // expires in 24 hours
         });
         
@@ -200,7 +211,7 @@ exports.checkToken = (req, res) => {
             if (err) return res.status(500).send("There was a problem finding the user.");
             if (!user) return res.status(404).send("No user found.");
             
-            res.status(200).send(user);
+            res.status(200).send(decoded);
         });
         
     });

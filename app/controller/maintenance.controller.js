@@ -16,16 +16,14 @@ exports.createMaintenance = (req, res) => {
     Maintenance.findOne({"currentUser.id": req.params.currentUserId, month: req.body.month}, (err, maintenance) => {
         if (maintenance) {
             let promise = new Promise((resolve, reject) => {
-                
                 maintenance.isPaid = req.body.isPaid
                 maintenance.save()
                 resolve(maintenance);
             }).then(    
-                res.send(maintenance)
-                
+                res.send({
+                    "message": "maintenance updated "
+                })
             )
-
-            
         } else {
             
             const newMaintenance = new Maintenance({
@@ -61,7 +59,20 @@ exports.getMaintenance = (req, res) => {
     }
 
     Maintenance.find({"currentUser.id": req.params.currentUserId}, {month: 1, isPaid: 1})
-    .then(maintenance => {
-        res.send(maintenance);
+    .then(maintenances => {
+        const pendingMaintenance =[] ;
+        if(maintenances){
+        let promise = new Promise((resolve, reject) => {
+            maintenances.forEach(maintenance => {
+                resolve(maintenance)
+                if(!maintenance.isPaid) {
+                pendingMaintenance.push(maintenance.month)
+                }
+            })
+        })
+        
+    }
+    res.send(pendingMaintenance)
+       
     })
 }
