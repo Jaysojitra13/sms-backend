@@ -1,1 +1,1 @@
-# sms-backend
+# Society management system API
